@@ -31,7 +31,7 @@ const AdminLogin = ({ setIsAdminLoggedIn }) => {
     setLoading(true);
 
     // 2. MANUAL BYPASS: Check if the input matches the demo credentials
-    if (email === "admin@betting.com" && password === "Admin123!") {
+    if (email === "admin@askthala.com" && password === "AskThala@2026!Secure") {
         localStorage.setItem('adminToken', 'demo-admin-token-bypass');
         if (setIsAdminLoggedIn) setIsAdminLoggedIn(true);
         setLoading(false);

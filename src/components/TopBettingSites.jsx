@@ -24,7 +24,7 @@ const TopBettingSites = () => {
   
   useEffect(() => {
     try {
-      const q = query(collection(db, 'betting-sites'), orderBy('rating', 'desc'), limit(20));
+      const q = query(collection(db, 'betting-sites'), orderBy('rank', 'asc'), limit(20));
       const unsubscribe = onSnapshot(q, (snapshot) => {
         const docs = snapshot.docs.map((s) => ({ id: s.id, ...s.data(), rating: Number(s.data().rating) || 0 }));
         setSites(docs);

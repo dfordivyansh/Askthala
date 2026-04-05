@@ -82,7 +82,7 @@ const ReviewHero = ({ site }) => {
                 <div className="border-t border-gray-200 py-4 mb-6 flex flex-wrap gap-6 items-center">
                     <div className="flex items-center gap-2">
                         <div className="bg-red-600 text-white w-6 h-6 flex items-center justify-center rounded text-xs font-bold">A</div>
-                        <span className="text-sm md:text-base text-gray-700 font-medium">AskGamblers Certificate of Trust</span>
+                        <span className="text-sm md:text-base text-gray-700 font-medium">AskThala Certificate of Trust</span>
                     </div>
                     
                     {/* Dynamic Awards Badge */}
