@@ -38,6 +38,7 @@ import {
 } from "firebase/firestore";
 import { auth, db } from "../../config/firebase";
 import { uploadImageToCloudinary } from "../../utils/cloudinaryUpload";
+import { onAuthStateChanged } from "firebase/auth";
 
 const BlogManager = ({ setIsAdminLoggedIn }) => {
   const [blogs, setBlogs] = useState([]);
@@ -149,7 +150,7 @@ const BlogManager = ({ setIsAdminLoggedIn }) => {
         category: formData.category || "Betting Tips",
         imageUrl,
         status: "active",
-        user: user?.uid || "admin"
+        user: user?.uid || "admin",
       };
 
       if (editId) {
