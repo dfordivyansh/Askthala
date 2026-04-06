@@ -138,10 +138,6 @@ const handleSubmit = async (e) => {
 
   const user = auth.currentUser;
 
-  if (!user) {
-    setErrorMessage("Login required");
-    return;
-  }
 
   setIsSaving(true);
   setErrorMessage("");
@@ -201,7 +197,7 @@ const handleSubmit = async (e) => {
     setIsSaving(false);
   }
 };
-33
+
   const resetForm = () => {
     setFormData({
       title: "",
