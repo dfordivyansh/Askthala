@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Plus,
   Edit2,
@@ -78,7 +78,7 @@ const BettingTipsManager = ({ setIsAdminLoggedIn }) => {
   useEffect(() => {
     const blogsQuery = query(
       collection(db, "betting-tips"),
-      orderBy("createdAt", "desc")
+      orderBy("createdAt", "desc"),
     );
     const unsubscribe = onSnapshot(
       blogsQuery,
@@ -93,10 +93,10 @@ const BettingTipsManager = ({ setIsAdminLoggedIn }) => {
       (error) => {
         console.error("Failed to load betting-site:", error);
         setErrorMessage(
-          "Unable to load betting-site from Firebase. Please refresh."
+          "Unable to load betting-site from Firebase. Please refresh.",
         );
         setIsLoading(false);
-      }
+      },
     );
 
     return () => unsubscribe();
@@ -126,68 +126,82 @@ const BettingTipsManager = ({ setIsAdminLoggedIn }) => {
     setImageFile(file);
     const reader = new FileReader();
     reader.onloadend = () => {
-      setFormData({ ...formData, image: reader.result });
+      setFormData({ ...formData, imageUrl: reader.result });
       setImagePreview(reader.result);
     };
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (isSaving) return;
-    const user = auth.currentUser;
-    if (!user) {
-      setErrorMessage("Your Session has expired. Please log in again");
-    }
-    setIsSaving(true);
-    setErrorMessage("");
-    try {
-      console.info("submiting betting-site-blog payload", formData);
-      const richContent = editorRef.current
-        ? editorRef.current.innerHTML
-        : formData.description;
-      const publishDate =
-        formData.date ||
-        new Date().toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        });
-      let imageUrl = formData.imageUrl;
-      if (imageFile) {
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (isSaving) return;
+
+  const user = auth.currentUser;
+
+  if (!user) {
+    setErrorMessage("Login required");
+    return;
+  }
+
+  setIsSaving(true);
+  setErrorMessage("");
+
+  try {
+    const richContent = editorRef.current
+      ? editorRef.current.innerHTML
+      : formData.description;
+
+    const publishDate =
+      formData.date ||
+      new Date().toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+
+    let imageUrl = formData.imageUrl;
+
+    if (imageFile) {
+      try {
         const uploadResult = await uploadImageToCloudinary(imageFile);
         imageUrl = uploadResult.url;
+      } catch (err) {
+        console.error("Image upload failed:", err);
       }
-      const payload = {
-        title: formData.title.trim(),
-        description: richContent,
-        date: publishDate,
-        category: formData.category || "Casino",
-        imageUrl,
-        link: formData.link,
-        status: "active",
-        user: user.uid,
-      };
-      if (editId) {
-        await updateDoc(doc(db, "betting-tips", editId), {
-          ...payload,
-          updatedAt: serverTimestamp(),
-        });
-      } else {
-        await addDoc(collection(db, "betting-tips"), {
-          ...payload,
-          createdAt: serverTimestamp(),
-        });
-      }
-      resetForm();
-    } catch (error) {
-      console.error('Failed to save Betting-site:', error);
-      setErrorMessage('Unable to save betting-site. Please try again.');
-    } finally {
-      setIsSaving(false);
     }
-  };
 
+    const payload = {
+      title: formData.title.trim(),
+      description: richContent,
+      date: publishDate,
+      category: formData.category || "Casino",
+      imageUrl,
+      link: formData.link,
+      status: "active",
+      user: user?.uid || "admin",
+    };
+
+    if (editId) {
+      await updateDoc(doc(db, "betting-tips", editId), {
+        ...payload,
+        updatedAt: serverTimestamp(),
+      });
+    } else {
+      await addDoc(collection(db, "betting-tips"), {
+        ...payload,
+        createdAt: serverTimestamp(),
+      });
+    }
+
+    resetForm();
+  } catch (error) {
+    console.error("FULL ERROR:", error);
+    alert(error.message);
+  } finally {
+    setIsSaving(false);
+  }
+};
+33
   const resetForm = () => {
     setFormData({
       title: "",
@@ -201,36 +215,36 @@ const BettingTipsManager = ({ setIsAdminLoggedIn }) => {
     setShowForm(false);
     setEditId(null);
     setImageFile(null);
-    setErrorMessage('');
-    if (editorRef.current) editorRef.current.innerHTML = '';
+    setErrorMessage("");
+    if (editorRef.current) editorRef.current.innerHTML = "";
   };
 
   const handleEdit = (tip) => {
     setFormData({
-      title: tip.title||'',
-      category:tip.category || "Casino",
-      date: tip.date||"",
-      imageUrl: tip.imageUrl|| "",
-      description: tip.description||"",
-      link: tip.link||"",
+      title: tip.title || "",
+      category: tip.category || "Casino",
+      date: tip.date || "",
+      imageUrl: tip.imageUrl || "",
+      description: tip.description || "",
+      link: tip.link || "",
     });
     setImagePreview(tip.imageUrl || null);
-    setImageFile(null)
+    setImageFile(null);
     setEditId(tip.id);
     setShowForm(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleDelete = async(id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this tip?")) {
-      return ;
+      return;
     }
-     try {
-          await deleteDoc(doc(db, 'betting-tips', id));
-        } catch (error) {
-          console.error('Failed to delete betting-site:', error);
-          setErrorMessage('Unable to delete this site. Please try again.');
-        }
+    try {
+      await deleteDoc(doc(db, "betting-tips", id));
+    } catch (error) {
+      console.error("FULL ERROR:", error);
+      alert(error.message); // 🔥 ab asli error dikhega
+    }
   };
 
   return (
@@ -254,8 +268,7 @@ const BettingTipsManager = ({ setIsAdminLoggedIn }) => {
                 resetForm();
                 setShowForm(!showForm);
               }}
-              className="bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 px-6 rounded-lg transition-all flex items-center gap-2 shadow-lg shadow-blue-900/20"
-            >
+              className="bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 px-6 rounded-lg transition-all flex items-center gap-2 shadow-lg shadow-blue-900/20">
               {showForm ? <X size={20} /> : <Plus size={20} />}
               {showForm ? "Cancel" : "Add Tip"}
             </button>
@@ -302,8 +315,7 @@ const BettingTipsManager = ({ setIsAdminLoggedIn }) => {
                         onChange={(e) =>
                           setFormData({ ...formData, category: e.target.value })
                         }
-                        className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
-                      >
+                        className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:border-blue-500">
                         <option value="Casino">Casino</option>
                         <option value="FOOTBALL">FOOTBALL</option>
                         <option value="TENNIS">TENNIS</option>
@@ -408,10 +420,15 @@ const BettingTipsManager = ({ setIsAdminLoggedIn }) => {
                     disabled={isSaving}
                     className={`not-first:w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg transition-all shadow-lg shadow-blue-900/20
                       ${
-                      isSaving ? 'opacity-70 cursor-not-allowed' : 'hover:bg-blue-400 cursor-pointer'
-                          }`}
-                  >
-                    {isSaving ? 'Saving...' :editId ? "Update Tip" : "Publish Tip"}
+                        isSaving
+                          ? "opacity-70 cursor-not-allowed"
+                          : "hover:bg-blue-400 cursor-pointer"
+                      }`}>
+                    {isSaving
+                      ? "Saving..."
+                      : editId
+                        ? "Update Tip"
+                        : "Publish Tip"}
                   </button>
                 </div>
               </form>
@@ -429,22 +446,19 @@ const BettingTipsManager = ({ setIsAdminLoggedIn }) => {
             {tips.map((tip) => (
               <div
                 key={tip.id}
-                className="group relative bg-[#111c35] rounded-2xl border border-slate-800 overflow-hidden hover:border-blue-500/50 transition-all duration-300 shadow-lg flex flex-col h-full"
-              >
+                className="group relative bg-[#111c35] rounded-2xl border border-slate-800 overflow-hidden hover:border-blue-500/50 transition-all duration-300 shadow-lg flex flex-col h-full">
                 {/* Edit/Delete Buttons (Top Right) - Appears on hover */}
                 <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-30">
                   <button
                     onClick={() => handleEdit(tip)}
                     className="bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-lg shadow-lg transition-transform hover:scale-110"
-                    title="Edit"
-                  >
+                    title="Edit">
                     <Edit2 size={16} />
                   </button>
                   <button
                     onClick={() => handleDelete(tip.id)}
                     className="bg-red-600 hover:bg-red-500 text-white p-2 rounded-lg shadow-lg transition-transform hover:scale-110"
-                    title="Delete"
-                  >
+                    title="Delete">
                     <Trash2 size={16} />
                   </button>
                 </div>
@@ -499,8 +513,7 @@ const BettingTipsManager = ({ setIsAdminLoggedIn }) => {
                       href={tip.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-white text-sm font-bold hover:text-blue-400 transition-colors"
-                    >
+                      className="inline-flex items-center gap-2 text-white text-sm font-bold hover:text-blue-400 transition-colors">
                       Read Analysis
                       <span className="hidden group-hover:inline-block transition-all">
                         →
