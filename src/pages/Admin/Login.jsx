@@ -147,17 +147,6 @@ const AdminLogin = ({ setIsAdminLoggedIn }) => {
           </button>
         </form>
 
-        <div className="bg-gray-100 p-4 rounded-lg text-center">
-          <p className="text-gray-700 font-semibold text-sm mb-3">
-            Demo Credentials:
-          </p>
-          <p className="text-blue-600 font-mono text-xs mb-1">
-            Email: admin@betting.com
-          </p>
-          <p className="text-blue-600 font-mono text-xs">
-            Password: Admin123!
-          </p>
-        </div>
       </div>
     </div>
   );
