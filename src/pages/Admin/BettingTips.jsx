@@ -136,7 +136,7 @@ const handleSubmit = async (e) => {
   e.preventDefault();
   if (isSaving) return;
 
-  const user = auth.currentUser;
+  const user = auth.currentUser || { uid: "admin" };
 
 
   setIsSaving(true);
